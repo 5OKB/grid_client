@@ -3,7 +3,7 @@ from threading import Lock
 
 from keycloak import KeycloakOpenID
 
-from application.grid.auth.token import Token
+from grid.auth.token import Token
 
 
 class Client:
