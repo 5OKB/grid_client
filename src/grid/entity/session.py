@@ -1,10 +1,9 @@
 import uuid
 from datetime import datetime
 
-from application.grid.entity.ground_station import GroundStation
-from application.grid.entity.horizontal_coords import HorizontalCoords, horizontal_coords_to_dict, \
-    horizontal_coords_from_dict
-from application.grid.entity.satellite import Satellite
+from grid.entity.ground_station import GroundStation
+from grid.entity.horizontal_coords import HorizontalCoords, horizontal_coords_to_dict, horizontal_coords_from_dict
+from grid.entity.satellite import Satellite
 
 
 class Session:

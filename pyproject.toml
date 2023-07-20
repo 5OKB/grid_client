@@ -12,6 +12,10 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+packages = [
+    { include = "grid", from = "src/" },
+    { include = "grid/**/*.py", from = "src/" },
+]
 
 [project.urls]
 "Homepage" = "https://github.com/pypa/sampleproject"

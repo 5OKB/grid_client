@@ -4,9 +4,10 @@ from typing import Callable
 
 from paho.mqtt.client import Client as PahoMqttClient, MQTTMessageInfo, MQTTMessage, base62
 
-from application.grid.auth.client import Client as AuthClient
-from application.grid.entity.frame import Frame
-from application.grid.entity.session import Session
+from grid.auth.client import Client as AuthClient
+from grid.entity.frame import Frame
+from grid.entity.session import Session
+
 
 
 def build_downlink_topic(session: Session) -> str:

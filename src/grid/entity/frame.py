@@ -1,6 +1,6 @@
 import uuid
 
-from application.grid.entity.session import Session
+from grid.entity.session import Session
 
 
 class Frame:

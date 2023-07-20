@@ -6,8 +6,8 @@ import uuid
 from paho.mqtt.client import Client as PahoMqttClient, base62
 from paho.mqtt.client import MQTTMessage
 
-from application.grid.auth.client import Client as AuthClient
-from application.grid.event.session_event import from_dict as build_session_event_from_dict, SessionEvent
+from grid.auth.client import Client as AuthClient
+from grid.event.session_event import from_dict as build_session_event_from_dict, SessionEvent
 
 
 def build_sessions_event_topic(company_id: int) -> str:
