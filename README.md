@@ -1,6 +1,8 @@
 # GRID Python SDK
 Python SDK to simplify integration with GRID services: https://gridgs.com
 
+**It's in beta state now. Please expect changes (we'll try to keep them backward-compatible).**
+
 # Main parts
 GridAuthClient - Used to authorize on GRID SSO server.
 
