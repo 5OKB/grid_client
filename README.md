@@ -1,5 +1,17 @@
-# GridAuthClient
+# GRID Python SDK
+Python SDK to simplify integration with GRID services: https://gridgs.com
 
+# Main parts
+GridAuthClient - Used to authorize on GRID SSO server.
+
+GridApiClient - Client for GRID RespAPI that can work with main Grid entities (right now with sessions only).
+
+GridEventSubscriber - subscriber to receive real-time events about changes in sessions (creation, deletion, starting and so on).
+
+GridMQTTClient - Client for GRID MQTT API. It useful for realtime connection (receive downlink frames and send uplink frames).
+
+# Examples how to use
+## GridAuthClient
 ```
 logger = logging.getLogger()
 ```
@@ -9,7 +21,7 @@ keycloak_openid = KeycloakOpenID(server_url="https://login.gridgs.com", client_i
 grid_auth_client = GridAuthClient(open_id_client=keycloak_openid, username="user@gridgs.com", password="userpass", company_id=1, logger=logger)
 ```
 
-# GridApiClient
+## GridApiClient
 
 ```
 grid_api_client = GridApiClient(base_url="https://api.gridgs.com" auth_client=grid_auth_client, logger=logger)
@@ -27,7 +39,7 @@ session = Session() # A session from get_predicted_sessions
 session = grid_api_client.create_session(session)
 ```
 
-# GridEventSubscriber
+## GridEventSubscriber
 
 Receive statuses of sessions
 
@@ -41,7 +53,7 @@ def on_event(self, event: SessionEvent):
     session = event.session
 ```
 
-# GridMQTTClient
+## GridMQTTClient
 
 ```
 grid_mqtt_client = GridMQTTClient(host="api.gridgs.com", port=1883, auth_client=grid_auth_client, logger=logger)
