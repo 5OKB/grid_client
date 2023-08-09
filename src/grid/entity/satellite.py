@@ -16,3 +16,7 @@ class Satellite:
 
     def __eq__(self, other):
         return self.id == other.id
+
+
+def satellite_from_dict(sat: dict) -> Satellite:
+    return Satellite(id=sat['id'])

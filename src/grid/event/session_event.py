@@ -1,4 +1,4 @@
-from grid.entity.session import Session, session_from_dict
+from application.grid.entity.session import Session, session_from_dict
 
 
 class SessionEvent:

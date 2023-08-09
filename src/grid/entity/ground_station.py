@@ -15,3 +15,7 @@ class GroundStation:
 
     def __eq__(self, other):
         return self.id == other.id
+
+
+def ground_station_from_dict(gs: dict) -> GroundStation:
+    return GroundStation(id=gs['id'])

@@ -5,8 +5,8 @@ from typing import List
 
 import requests
 
-from grid.auth.client import Client as AuthClient
-from grid.entity.session import Session, session_from_dict
+from application.grid.auth.client import Client as AuthClient
+from application.grid.entity.session import Session, session_from_dict
 
 
 class Client:

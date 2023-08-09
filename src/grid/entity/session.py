@@ -1,9 +1,10 @@
 import uuid
 from datetime import datetime
 
-from grid.entity.ground_station import GroundStation
-from grid.entity.horizontal_coords import HorizontalCoords, horizontal_coords_to_dict, horizontal_coords_from_dict
-from grid.entity.satellite import Satellite
+from application.grid.entity.ground_station import GroundStation, ground_station_from_dict
+from application.grid.entity.horizontal_coords import HorizontalCoords, horizontal_coords_to_dict, \
+    horizontal_coords_from_dict
+from application.grid.entity.satellite import Satellite, satellite_from_dict
 
 
 class Session:
@@ -77,10 +78,10 @@ class Session:
 def session_from_dict(ses: dict) -> Session:
     return Session(
         id=uuid.UUID(ses['id']),
-        satellite=Satellite(ses['satellite']['id']),
-        ground_station=GroundStation(ses['groundStation']['id']),
-        status=ses['status'],
-        start_datetime=datetime.fromisoformat(ses['startDateTime']),
-        end_datetime=datetime.fromisoformat(ses['endDateTime']),
-        tca_coords=horizontal_coords_from_dict(ses['tcaCoords'])
+        satellite=satellite_from_dict(ses['satellite']) if 'satellite' in ses else None,
+        ground_station=ground_station_from_dict(ses['groundStation']) if 'groundStation' in ses else None,
+        status=ses['status'] if 'status' in ses else None,
+        start_datetime=datetime.fromisoformat(ses['startDateTime']) if 'startDateTime' in ses else None,
+        end_datetime=datetime.fromisoformat(ses['endDateTime']) if 'endDateTime' in ses else None,
+        tca_coords=horizontal_coords_from_dict(ses['tcaCoords']) if 'tcaCoords' in ses else None
     )

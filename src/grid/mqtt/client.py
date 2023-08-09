@@ -1,13 +1,13 @@
+import json
 import logging
 import uuid
 from typing import Callable
 
 from paho.mqtt.client import Client as PahoMqttClient, MQTTMessageInfo, MQTTMessage, base62
 
-from grid.auth.client import Client as AuthClient
-from grid.entity.frame import Frame
-from grid.entity.session import Session
-
+from application.grid.auth.client import Client as AuthClient
+from application.grid.entity.frame import Frame, frame_from_dict
+from application.grid.entity.session import Session
 
 
 def build_downlink_topic(session: Session) -> str:
@@ -50,8 +50,10 @@ class Client:
         self.__mqtt_client.on_connect = on_connect
 
         def on_message(client, userdata, msg: MQTTMessage):
-            # @TODO pass frame id, payload and other
-            on_downlink(Frame(id=uuid.uuid1(), session=session, raw_data=msg.payload))
+            frame_dict = json.loads(msg.payload)
+            frame = frame_from_dict(frame_dict)
+            frame.session = session # Set session explicitly as frame_dict['communicationSession']  does not have GroundStation and Satellite
+            on_downlink(frame)
 
         self.__mqtt_client.on_message = on_message
 
