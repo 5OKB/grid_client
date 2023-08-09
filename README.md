@@ -41,7 +41,7 @@ def on_event(self, event: SessionEvent):
     session = event.session
 ```
 
-# GridEventSubscriber
+# GridMQTTClient
 
 ```
 grid_mqtt_client = GridMQTTClient(host="api.gridgs.com", port=1883, auth_client=grid_auth_client, logger=logger)
