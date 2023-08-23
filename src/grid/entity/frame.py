@@ -1,3 +1,4 @@
+import base64
 import uuid
 from datetime import datetime
 
@@ -50,6 +51,6 @@ def frame_from_dict(fr: dict) -> Frame:
         id=uuid.UUID(fr['id']),
         created_at=datetime.fromisoformat(fr['createdAt']) if 'createdAt' in fr else None,
         session=session,
-        raw_data=fr['rawData'] if 'rawData' in fr else None,
+        raw_data=base64.b64decode(fr['rawData']) if 'rawData' in fr else None,
         extra_data=fr['extraData'] if 'extraData' in fr else None
     )
