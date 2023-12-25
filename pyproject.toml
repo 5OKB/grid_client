@@ -12,10 +12,6 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-packages = [
-    { include = "gridgs", from = "src/" },
-    { include = "gridgs/**/*.py", from = "src/" },
-]
 
 [project.urls]
 "Homepage" = "https://github.com/pypa/sampleproject"
