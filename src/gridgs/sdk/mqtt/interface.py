@@ -3,8 +3,7 @@ from typing import Callable
 
 from paho.mqtt.client import MQTTMessageInfo
 
-from gridgs.sdk.entity.frame import Frame
-from gridgs.sdk.entity.session import Session
+from gridgs.sdk.entity import Frame, Session
 
 
 class Connector(ABC):
