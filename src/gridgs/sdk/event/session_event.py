@@ -1,4 +1,4 @@
-from gridgs.sdk.entity.session import Session, session_from_dict
+from gridgs.sdk.entity import Session, session_from_dict
 
 
 class SessionEvent:
@@ -21,5 +21,5 @@ class SessionEvent:
         return self.__session
 
 
-def from_dict(obj: dict) -> SessionEvent:
+def _session_event_from_dict(obj: dict) -> SessionEvent:
     return SessionEvent(type=obj['type'], session=session_from_dict(obj['entity']))

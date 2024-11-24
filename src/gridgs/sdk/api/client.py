@@ -5,8 +5,8 @@ from typing import List
 
 import requests
 
-from gridgs.sdk.auth.client import Client as AuthClient
-from gridgs.sdk.entity.session import Session, session_from_dict
+from gridgs.sdk.auth import Client as AuthClient
+from gridgs.sdk.entity import Session, session_from_dict
 
 
 class Client:

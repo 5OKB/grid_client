@@ -5,18 +5,9 @@ from typing import Callable
 
 from paho.mqtt.client import Client as PahoMqttClient, MQTTMessageInfo, MQTTMessage, base62
 
-from gridgs.sdk.auth.client import Client as AuthClient
-from gridgs.sdk.entity.frame import Frame, frame_from_dict
-from gridgs.sdk.entity.session import Session
+from gridgs.sdk.auth import Client as AuthClient
+from gridgs.sdk.entity import Frame, frame_from_dict, Session
 from .interface import Connector, Subscriber, Sender
-
-
-def build_downlink_topic(session: Session) -> str:
-    return f'satellite/{session.satellite.id}/downlink/gs/{session.ground_station.id}'
-
-
-def build_uplink_topic(session: Session) -> str:
-    return f'satellite/{session.satellite.id}/uplink/gs/{session.ground_station.id}'
 
 
 class Client(Connector, Subscriber, Sender):
@@ -47,7 +38,7 @@ class Client(Connector, Subscriber, Sender):
     def subscribe(self, session: Session, on_downlink: Callable[[Frame], None]):
         def on_connect(client, userdata, flags, rc):
             self.__logger.info('GRID MQTT Client subscribing...')
-            client.subscribe(topic=build_downlink_topic(session))
+            client.subscribe(topic=_build_downlink_topic(session))
 
         self.__mqtt_client.on_connect = on_connect
 
@@ -64,4 +55,12 @@ class Client(Connector, Subscriber, Sender):
         if not self.__mqtt_client.is_connected():
             self.__logger.info(f'Grid MQTT Client disconnected. Connecting again...')
             self.connect()
-        return self.__mqtt_client.publish(topic=build_uplink_topic(session), payload=raw_data)
+        return self.__mqtt_client.publish(topic=_build_uplink_topic(session), payload=raw_data)
+
+
+def _build_downlink_topic(session: Session) -> str:
+    return f'satellite/{session.satellite.id}/downlink/gs/{session.ground_station.id}'
+
+
+def _build_uplink_topic(session: Session) -> str:
+    return f'satellite/{session.satellite.id}/uplink/gs/{session.ground_station.id}'
