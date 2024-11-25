@@ -6,7 +6,7 @@ from typing import List
 import requests
 
 from gridgs.sdk.auth import Client as AuthClient
-from gridgs.sdk.entity import Session, session_from_dict
+from gridgs.sdk.entity import Session, session_from_dict, PredictParams
 
 
 class Client:
@@ -19,9 +19,9 @@ class Client:
         self.__auth_client = auth_client
         self.__logger = logger
 
-    def get_predicted_sessions(self, params: dict) -> List[Session]:
+    def get_predicted_sessions(self, params: PredictParams) -> List[Session]:
         token = self.__auth_client.token()
-        response = requests.get(self.__base_url + '/sessions/predict', params=params, headers={
+        response = requests.get(self.__base_url + '/sessions/predict', params=params.to_dict(), headers={
             'Authorization': 'Bearer ' + token.access_token
         })
 
