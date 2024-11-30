@@ -1,6 +1,6 @@
 [project]
 name = "gridgs-sdk"
-version = "0.1.3"
+version = "0.1.4"
 authors = [
   { name="5OKB", email="dev@5okb.com" },
 ]
@@ -11,6 +11,10 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+]
+dependencies = [
+    "paho-mqtt==1.6.*",
+    "python-keycloak==3.*"
 ]
 
 [project.urls]
