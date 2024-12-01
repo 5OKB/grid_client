@@ -1,12 +1,12 @@
 class Token:
     __username: str
     __company_id: int
-    __oauth_token: dict
+    __access_token: str
 
-    def __init__(self, username: str, company_id: int, oauth_token: dict):
+    def __init__(self, username: str, company_id: int, access_token: str):
         self.__username = username
         self.__company_id = company_id
-        self.__oauth_token = oauth_token
+        self.__access_token = access_token
 
     @property
     def username(self) -> str:
@@ -18,4 +18,5 @@ class Token:
 
     @property
     def access_token(self) -> str:
-        return self.__oauth_token['access_token']
+        return self.__access_token
+

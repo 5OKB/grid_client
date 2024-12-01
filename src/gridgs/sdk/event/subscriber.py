@@ -3,10 +3,10 @@ import logging
 import typing
 import uuid
 
-from paho.mqtt.client import Client as PahoMqttClient, base62
+from paho.mqtt.client import Client as PahoMqttClient, MQTT_ERR_SUCCESS, error_string, base62
 from paho.mqtt.client import MQTTMessage
 
-from gridgs.sdk.auth import Client as AuthClient
+from gridgs.sdk.auth import Client as AuthClient, Token
 from .session_event import _session_event_from_dict, SessionEvent
 
 
@@ -34,7 +34,7 @@ class Subscriber:
 
     def run(self):
         self.__logger.info('Grid Event Client Run')
-        token = self.__auth_client.token()
+        token = self.__get_token_and_set_credentials()
 
         def on_connect(client, userdata, flags, rc):
             self.__logger.info('GridEventSubscriber connect')
@@ -43,13 +43,19 @@ class Subscriber:
         self.__mqtt_client.on_connect = on_connect
 
         def on_disconnect(client, userdata, rc):
-            self.__logger.info('GridEventSubscriber disconnect')
+            self.__logger.info(f'GridEventSubscriber disconnect: {error_string(rc)}')
+            if rc != MQTT_ERR_SUCCESS:
+                self.__get_token_and_set_credentials()
 
         self.__mqtt_client.on_disconnect = on_disconnect
 
-        self.__mqtt_client.username_pw_set(username=token.username, password=token.access_token)
         self.__mqtt_client.connect(self.__host, self.__port)
         self.__mqtt_client.loop_forever(retry_first_connection=True)
+
+    def __get_token_and_set_credentials(self) -> Token:
+        token = self.__auth_client.token()
+        self.__mqtt_client.username_pw_set(username=token.username, password=token.access_token)
+        return token
 
 
 def _build_sessions_event_topic(company_id: int) -> str:
