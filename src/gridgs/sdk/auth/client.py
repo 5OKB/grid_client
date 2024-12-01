@@ -11,7 +11,7 @@ class Client:
     __username: str
     __password: str
     __company_id: int
-    __token: Token
+    __oauth_token: dict = None
     __lock: Lock
     __logger: logging.Logger
 
@@ -25,10 +25,7 @@ class Client:
 
     def token(self) -> Token:
         with self.__lock:
-            if hasattr(self, '__token') and self.__token:  # @TODO correct condition?
-                # @TODO implement refreshing
-                pass
-            else:
-                oauth_token = self.__open_id_client.token(username=self.__username, password=self.__password)
-                self.__token = Token(username=self.__username, company_id=self.__company_id, oauth_token=oauth_token)
-            return self.__token
+            # @TODO implement refreshing and token caching
+
+            self.__oauth_token = self.__open_id_client.token(username=self.__username, password=self.__password)
+            return Token(username=self.__username, company_id=self.__company_id, access_token=self.__oauth_token['access_token'])
