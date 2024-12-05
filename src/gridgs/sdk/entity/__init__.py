@@ -4,3 +4,5 @@ from .horizontal_coords import HorizontalCoords, horizontal_coords_to_dict, hori
 from .predict_params import PredictParams
 from .satellite import Satellite, satellite_from_dict
 from .session import Session, session_from_dict
+from .session_event import SessionEvent, session_event_from_dict
+from .token import Token

@@ -1,2 +1,2 @@
 from .client import Client
-from .interface import Connector, Subscriber, Sender
+from .interface import Connector, Sender, Receiver

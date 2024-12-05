@@ -12,12 +12,12 @@ class Frame:
     __raw_data: bytes
     __extra_data: dict
 
-    def __init__(self, id: uuid.UUID, created_at: datetime, session: Session, raw_data: bytes, extra_data: dict):
+    def __init__(self, id: uuid.UUID, created_at: datetime, session: Session, raw_data: bytes, extra_data: dict|None = None):
         self.__id = id
         self.__created_at = created_at
         self.__session = session
         self.__raw_data = raw_data
-        self.__extra_data = extra_data
+        self.__extra_data = {} if extra_data is None else extra_data
 
     @property
     def id(self) -> uuid.UUID:
