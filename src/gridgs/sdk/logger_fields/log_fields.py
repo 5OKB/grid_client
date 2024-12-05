@@ -1,7 +1,6 @@
 import uuid
 
-from gridgs.sdk.entity import Frame, Session, Satellite, GroundStation
-from gridgs.sdk.event import SessionEvent
+from gridgs.sdk.entity import Frame, Session, Satellite, GroundStation, SessionEvent
 
 
 def with_satellite(value: Satellite) -> dict:

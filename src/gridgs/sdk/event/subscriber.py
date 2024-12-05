@@ -6,9 +6,9 @@ import uuid
 from paho.mqtt.client import Client as PahoMqttClient, MQTT_ERR_SUCCESS, error_string
 from paho.mqtt.client import MQTTMessage
 
-from gridgs.sdk.auth import Client as AuthClient, Token
+from gridgs.sdk.auth import Client as AuthClient
+from gridgs.sdk.entity import session_event_from_dict, SessionEvent, Token
 from gridgs.sdk.logger_fields import with_session_event
-from .session_event import _session_event_from_dict, SessionEvent
 
 
 class Subscriber:
@@ -29,7 +29,7 @@ class Subscriber:
         def on_message(client, userdata, msg: MQTTMessage):
             try:
                 session_event_dict = json.loads(msg.payload)
-                session_event = _session_event_from_dict(session_event_dict)
+                session_event = session_event_from_dict(session_event_dict)
                 self.__logger.info('Session event received', extra=with_session_event(session_event))
                 func(session_event)
             except Exception as e:

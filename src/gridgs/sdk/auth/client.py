@@ -4,7 +4,7 @@ from threading import Lock
 
 from keycloak import KeycloakOpenID
 
-from .token import Token
+from gridgs.sdk.entity import Token
 
 
 class Client:
