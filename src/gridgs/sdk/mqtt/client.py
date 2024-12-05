@@ -8,7 +8,7 @@ from paho.mqtt.client import Client as PahoMqttClient, MQTTMessageInfo, MQTTMess
 from gridgs.sdk.auth import Client as AuthClient
 from gridgs.sdk.entity import Frame, frame_from_dict, Session
 from gridgs.sdk.logger_fields import with_frame, with_session, with_frame_payload_size
-from .exceptions.session_not_found_exception import SessionNotFoundException
+from .exceptions import SessionNotFoundException
 from .interface import Connector, Sender, Receiver
 
 
