@@ -25,6 +25,11 @@ class Subscriber:
         self.__port = port
         self.__auth_client = auth_client
         self.__mqtt_client = PahoMqttClient(client_id='api-events-' + str(uuid.uuid4()), reconnect_on_failure=True)
+
+        def mqtt_client_log_callback(client, userdata, level, buf):
+            self.__logger.debug(f'PahoMqtt: {buf}')
+
+        self.__mqtt_client.on_log = mqtt_client_log_callback
         self.__lock = Lock()
         self.__logger = logger
 
