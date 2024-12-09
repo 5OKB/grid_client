@@ -13,17 +13,19 @@ class Client:
     __base_url: str
     __auth_client: AuthClient
     __logger: logging.Logger
+    __verify: bool
 
-    def __init__(self, base_url: str, auth_client: AuthClient, logger: logging.Logger):
+    def __init__(self, base_url: str, auth_client: AuthClient, logger: logging.Logger, verify=True):
         self.__base_url = base_url
         self.__auth_client = auth_client
         self.__logger = logger
+        self.__verify = verify
 
     def get_predicted_sessions(self, params: PredictParams) -> List[Session]:
         token = self.__auth_client.token()
         response = requests.get(self.__base_url + '/sessions/predict', params=params.to_dict(), headers={
             'Authorization': 'Bearer ' + token.access_token
-        })
+        }, verify=self.__verify)
 
         sessions = []
         if response.status_code == 200:
@@ -42,7 +44,7 @@ class Client:
         }
         response = requests.post(self.__base_url + '/sessions', data=json.dumps(create_params), headers={
             'Content-type': 'application/json', 'Authorization': 'Bearer ' + token.access_token
-        })
+        }, verify=self.__verify)
 
         if response.status_code == 201:
             return session_from_dict(response.json())
