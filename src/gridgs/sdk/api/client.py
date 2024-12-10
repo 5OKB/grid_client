@@ -22,31 +22,33 @@ class Client:
         self.__verify = verify
 
     def get_predicted_sessions(self, params: PredictParams) -> List[Session]:
-        token = self.__auth_client.token()
-        response = requests.get(self.__base_url + '/sessions/predict', params=params.to_dict(), headers={
-            'Authorization': 'Bearer ' + token.access_token
-        }, verify=self.__verify)
+        response = requests.get(self.__base_url + '/sessions/predict', params=params.to_dict(), headers=self.__build_auth_header(), verify=self.__verify)
 
         sessions = []
-        if response.status_code == 200:
-            for row in response.json():
-                sessions.append(session_from_dict(row))
+
+        if response.status_code != 200:
+            raise HTTPException('Can not predict session', response.reason, response.json())
+
+        for row in response.json():
+            sessions.append(session_from_dict(row))
 
         return sessions
 
     def create_session(self, session: Session) -> Session:
-        token = self.__auth_client.token()
         create_params = {
             'satellite': {'id': session.satellite.id},
             'groundStation': {'id': session.ground_station.id},
             'startDateTime': session.start_datetime.isoformat(sep='T', timespec='auto'),
             'endDateTime': session.end_datetime.isoformat(sep='T', timespec='auto'),
         }
-        response = requests.post(self.__base_url + '/sessions', data=json.dumps(create_params), headers={
-            'Content-type': 'application/json', 'Authorization': 'Bearer ' + token.access_token
-        }, verify=self.__verify)
+        response = requests.post(self.__base_url + '/sessions', data=json.dumps(create_params), headers=self.__build_auth_header(), verify=self.__verify)
 
-        if response.status_code == 201:
-            return session_from_dict(response.json())
+        if response.status_code != 201:
+            raise HTTPException('Can not create session', response.reason, response.json())
 
-        raise HTTPException('Can not create session', response.reason, response.json())
+        return session_from_dict(response.json())
+
+
+    def __build_auth_header(self) -> dict:
+        token = self.__auth_client.token()
+        return {'Authorization': 'Bearer ' + token.access_token}
