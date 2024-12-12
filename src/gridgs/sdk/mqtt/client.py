@@ -9,7 +9,7 @@ from paho.mqtt.client import Client as PahoMqttClient, MQTTMessageInfo, MQTTMess
 from gridgs.sdk.auth import Client as AuthClient
 from gridgs.sdk.entity import Frame, frame_from_dict, Session
 from gridgs.sdk.logger_fields import with_frame, with_session, with_frame_payload_size
-from .exceptions import SessionNotFoundException
+from .exceptions import SessionNotFoundException, SendUplinkException
 from .interface import Connector, Sender, Receiver
 
 
@@ -72,9 +72,12 @@ class Client(Connector, Sender, Receiver):
 
     def send(self, raw_data: bytes) -> MQTTMessageInfo:
         self.__logger.info('Sending uplink', extra=with_frame_payload_size(raw_data) | with_session(self.__session))
-        if isinstance(self.__session, Session):
-            return self.__mqtt_client.publish(topic=_build_uplink_topic(self.__session), payload=raw_data)
-        raise SessionNotFoundException("Session not found. Connect first")
+        if not isinstance(self.__session, Session):
+            raise SessionNotFoundException('Session not found. Connect first')
+        message_info = self.__mqtt_client.publish(topic=_build_uplink_topic(self.__session), payload=raw_data)
+        if not message_info.rc == MQTT_ERR_SUCCESS:
+            raise SendUplinkException(f'Uplink frame can not be sent: {error_string(message_info.rc)}')
+        return message_info
 
     def __set_credentials(self):
         token = self.__auth_client.token()
