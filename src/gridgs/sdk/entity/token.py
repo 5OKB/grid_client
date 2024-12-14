@@ -4,6 +4,8 @@ class Token:
     __access_token: str
 
     def __init__(self, username: str, company_id: int, access_token: str):
+        if not access_token:
+            raise ValueError('Access token is empty')
         self.__username = username
         self.__company_id = company_id
         self.__access_token = access_token
