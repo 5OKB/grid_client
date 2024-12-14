@@ -36,7 +36,7 @@ class Client:
                 oauth_token = self.__open_id_client.token(username=self.__username, password=self.__password)
                 self.__set_tokens_values(oauth_token)
             elif datetime.now() >= self.__token_expires_at:
-                self.__logger.info('Refresh auth token')
+                self.__logger.info('Refreshing auth token')
                 oauth_token = self.__open_id_client.refresh_token(refresh_token=self.__refresh_token)
                 self.__set_tokens_values(oauth_token)
 
