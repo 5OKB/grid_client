@@ -49,10 +49,10 @@ class Client:
         self.__refresh_token = oauth_token['refresh_token']
         self.__refresh_expires_at = datetime.now() + timedelta(seconds=int(oauth_token['refresh_expires_in'])) - timedelta(seconds=self.__PRE_EXPIRATION_SECONDS)
 
-        self.__logger.info('Auth token', extra=with_auth_token(oauth_token))
+        self.__logger.info('Auth token', extra=_log_with_auth_token(oauth_token))
 
 
-def with_auth_token(value: dict) -> dict:
+def _log_with_auth_token(value: dict) -> dict:
     if isinstance(value, dict):
         return {'oauth_expires_in': value.get('expires_in'), 'oauth_refresh_expires_at': value.get('refresh_expires_in')}
     return {}
