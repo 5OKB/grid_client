@@ -62,11 +62,13 @@ class Client:
         self.__logger.info('Token info', extra=_log_with_auth_token(oauth_token))
 
     def logout(self) -> None:
-        self.__logger.info('Logging out')
-        self.__open_id_client.logout(self.__refresh_token_value)
-        self.__refresh_token_value = ''
-        self.__token_expires_at = datetime.min
-        self.__refresh_expires_at = datetime.min
+        with self.__lock:
+            self.__logger.info('Logging out')
+            if self.__refresh_token_value:
+                self.__open_id_client.logout(self.__refresh_token_value)
+            self.__refresh_token_value = ''
+            self.__token_expires_at = datetime.min
+            self.__refresh_expires_at = datetime.min
 
 
 def _log_with_auth_token(value: dict) -> dict:
