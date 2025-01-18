@@ -8,7 +8,7 @@ from gridgs.sdk.entity import Frame, Session
 
 class Connector(ABC):
     @abstractmethod
-    def connect(self, session: Session) -> None:
+    def connect(self, session: Session, on_connect: Callable[[Session], None] | None = None) -> None:
         pass
 
     @abstractmethod
@@ -23,5 +23,6 @@ class Sender(ABC):
 
 
 class Receiver(ABC):
+    @abstractmethod
     def on_downlink(self, on_downlink: Callable[[Frame], None]):
         pass
