@@ -42,18 +42,20 @@ class Client(Connector, Sender, Receiver):
 
         self.__mqtt_client.on_message = on_message
 
-    def connect(self, session: Session):
+    def connect(self, session: Session, on_connect: Callable[[Session], None] | None = None):
         if not isinstance(session, Session):
             raise SessionNotFoundException("Pass session to connect")
         with self.__lock:
             self.__logger.info('Connecting', extra=with_session(session))
             self.__session = session
 
-            def on_connect(client: PahoMqttClient, userdata, flags, reason_code):
+            def on_mqtt_connect(client: PahoMqttClient, userdata, flags, reason_code):
                 self.__logger.info('Connected. Subscribing', extra=with_session(session))
                 client.subscribe(topic=_build_downlink_topic(session))
+                if on_connect:
+                    on_connect(session)
 
-            self.__mqtt_client.on_connect = on_connect
+            self.__mqtt_client.on_connect = on_mqtt_connect
 
             def on_disconnect(client, userdata, rc):
                 self.__logger.info(f'Disconnected: {error_string(rc)}', extra=with_session(session))
