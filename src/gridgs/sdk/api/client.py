@@ -5,8 +5,9 @@ from typing import List
 
 import requests
 
+from gridgs.sdk.api.params import SessionQueryParams
 from gridgs.sdk.auth import Client as AuthClient
-from gridgs.sdk.entity import Session, session_from_dict, PredictParams
+from gridgs.sdk.entity import Session, session_from_dict
 
 
 class Client:
@@ -21,14 +22,25 @@ class Client:
         self.__logger = logger
         self.__verify = verify
 
-    def get_predicted_sessions(self, params: PredictParams) -> List[Session]:
-        response = requests.get(self.__base_url + '/sessions/predict', params=params.to_dict(), headers=self.__build_auth_header(), verify=self.__verify)
-
-        sessions = []
+    def find_sessions(self, params: SessionQueryParams) -> List[Session]:
+        response = requests.get(self.__base_url + '/sessions', params=params.to_dict(), headers=self.__build_auth_header(), verify=self.__verify)
 
         if response.status_code != 200:
             raise HTTPException('Can not predict session', response.reason, response.json())
 
+        sessions = []
+        for row in response.json():
+            sessions.append(session_from_dict(row))
+
+        return sessions
+
+    def predict_sessions(self, params: SessionQueryParams) -> List[Session]:
+        response = requests.get(self.__base_url + '/sessions/predict', params=params.to_dict(), headers=self.__build_auth_header(), verify=self.__verify)
+
+        if response.status_code != 200:
+            raise HTTPException('Can not predict session', response.reason, response.json())
+
+        sessions = []
         for row in response.json():
             sessions.append(session_from_dict(row))
 
