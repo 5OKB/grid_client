@@ -1,24 +1,16 @@
+from dataclasses import dataclass
+
 from .session import Session, session_from_dict
 
 
+@dataclass(frozen=True)
 class SessionEvent:
     EVENT_CREATE = 'created'
     EVENT_UPDATE = 'updated'
     EVENT_REMOVE = 'removed'
-    __type: str
-    __session: Session
 
-    def __init__(self, type: str, session: Session):
-        self.__type = type
-        self.__session = session
-
-    @property
-    def type(self) -> str:
-        return self.__type
-
-    @property
-    def session(self) -> Session:
-        return self.__session
+    type: str
+    session: Session
 
 
 def session_event_from_dict(obj: dict) -> SessionEvent:
