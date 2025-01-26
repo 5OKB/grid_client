@@ -3,9 +3,6 @@
 #
 
 class HorizontalCoords:
-    _azimuth: int
-    _elevation: int
-
     MIN_AZ = -360
     MAX_AZ = 540
     MIN_EL = -90

@@ -2,8 +2,6 @@
 #  Copyright (c) OKB Fifth Generation, 2021.
 #
 class GroundStation:
-    _id: int
-
     def __init__(self, id: int):
         if not id or not id > 0:
             raise ValueError('GroundStation id should be more then 0')

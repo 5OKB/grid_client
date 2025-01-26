@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Callable
 
 from paho.mqtt.client import MQTTMessageInfo
+from paho.mqtt.enums import MQTTErrorCode
 
 from gridgs.sdk.entity import Frame, Session
 
@@ -12,7 +13,7 @@ class Connector(ABC):
         pass
 
     @abstractmethod
-    def disconnect(self) -> None:
+    def disconnect(self) -> MQTTErrorCode:
         pass
 
 

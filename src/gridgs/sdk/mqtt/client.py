@@ -1,10 +1,11 @@
 import json
 import logging
+import threading
 import uuid
-from threading import Lock
 from typing import Callable
 
 from paho.mqtt.client import Client as PahoMqttClient, MQTTMessageInfo, MQTTMessage, MQTT_ERR_SUCCESS, error_string
+from paho.mqtt.enums import MQTTErrorCode
 
 from gridgs.sdk.auth import Client as AuthClient
 from gridgs.sdk.entity import Frame, frame_from_dict, Session
@@ -14,20 +15,15 @@ from .interface import Connector, Sender, Receiver
 
 
 class Client(Connector, Sender, Receiver):
-    __host: str
-    __port: int
-    __auth_client: AuthClient
-    __mqtt_client: PahoMqttClient
-    __session: Session | None = None
-    __lock: Lock
-    __logger: logging.Logger
-
     def __init__(self, host: str, port: int, auth_client: AuthClient, logger: logging.Logger):
+        self.__is_running_lock = threading.Lock()
+        self.__stop_event = threading.Event()
+
         self.__host = host
         self.__port = port
         self.__auth_client = auth_client
         self.__mqtt_client = PahoMqttClient(client_id='api-frames-' + str(uuid.uuid4()), reconnect_on_failure=True)
-        self.__lock = Lock()
+        self.__session: Session | None = None
         self.__logger = logger
 
     def on_downlink(self, on_downlink: Callable[[Frame], None]):
@@ -45,11 +41,18 @@ class Client(Connector, Sender, Receiver):
     def connect(self, session: Session, on_connect: Callable[[Session], None] | None = None):
         if not isinstance(session, Session):
             raise SessionNotFoundException("Pass session to connect")
-        with self.__lock:
+        with self.__is_running_lock:
+            self.__stop_event.clear()
+
             self.__logger.info('Connecting', extra=with_session(session))
             self.__session = session
 
             def on_mqtt_connect(client: PahoMqttClient, userdata, flags, reason_code):
+                if self.__stop_event.is_set():
+                    self.__logger.info('Connected. Ignore Subscribing. Stop is called', extra=with_session(session))
+                    client.disconnect()
+                    return
+
                 self.__logger.info('Connected. Subscribing', extra=with_session(session))
                 client.subscribe(topic=_build_downlink_topic(session))
                 if on_connect:
@@ -59,7 +62,7 @@ class Client(Connector, Sender, Receiver):
 
             def on_disconnect(client, userdata, rc):
                 self.__logger.info(f'Disconnected: {error_string(rc)}', extra=with_session(session))
-                if rc != MQTT_ERR_SUCCESS:
+                if rc != MQTT_ERR_SUCCESS and not self.__stop_event.is_set():
                     self.__set_credentials()
 
             self.__mqtt_client.on_disconnect = on_disconnect
@@ -68,9 +71,10 @@ class Client(Connector, Sender, Receiver):
             self.__mqtt_client.connect(self.__host, self.__port)
             self.__mqtt_client.loop_forever(retry_first_connection=True)
 
-    def disconnect(self):
-        self.__logger.info('Disconnecting...', extra=with_session(self.__session))
-        self.__mqtt_client.disconnect()
+    def disconnect(self) -> MQTTErrorCode:
+        self.__logger.info('Disconnecting', extra=with_session(self.__session))
+        self.__stop_event.set()
+        return self.__mqtt_client.disconnect()
 
     def send(self, raw_data: bytes) -> MQTTMessageInfo:
         self.__logger.info('Sending uplink', extra=with_frame_payload_size(raw_data) | with_session(self.__session))
