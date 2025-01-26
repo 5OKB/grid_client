@@ -1,7 +1,7 @@
 import json
 import logging
+import threading
 import uuid
-from threading import Lock
 from typing import Callable
 
 from paho.mqtt.client import Client as PahoMqttClient, MQTTMessageInfo, MQTTMessage, MQTT_ERR_SUCCESS, error_string
@@ -14,20 +14,13 @@ from .interface import Connector, Sender, Receiver
 
 
 class Client(Connector, Sender, Receiver):
-    __host: str
-    __port: int
-    __auth_client: AuthClient
-    __mqtt_client: PahoMqttClient
-    __session: Session | None = None
-    __lock: Lock
-    __logger: logging.Logger
-
     def __init__(self, host: str, port: int, auth_client: AuthClient, logger: logging.Logger):
+        self.__is_running_lock = threading.Lock()
         self.__host = host
         self.__port = port
         self.__auth_client = auth_client
         self.__mqtt_client = PahoMqttClient(client_id='api-frames-' + str(uuid.uuid4()), reconnect_on_failure=True)
-        self.__lock = Lock()
+        self.__session: Session | None = None
         self.__logger = logger
 
     def on_downlink(self, on_downlink: Callable[[Frame], None]):
@@ -45,7 +38,7 @@ class Client(Connector, Sender, Receiver):
     def connect(self, session: Session, on_connect: Callable[[Session], None] | None = None):
         if not isinstance(session, Session):
             raise SessionNotFoundException("Pass session to connect")
-        with self.__lock:
+        with self.__is_running_lock:
             self.__logger.info('Connecting', extra=with_session(session))
             self.__session = session
 
@@ -69,7 +62,7 @@ class Client(Connector, Sender, Receiver):
             self.__mqtt_client.loop_forever(retry_first_connection=True)
 
     def disconnect(self):
-        self.__logger.info('Disconnecting...', extra=with_session(self.__session))
+        self.__logger.info('Disconnecting', extra=with_session(self.__session))
         self.__mqtt_client.disconnect()
 
     def send(self, raw_data: bytes) -> MQTTMessageInfo:

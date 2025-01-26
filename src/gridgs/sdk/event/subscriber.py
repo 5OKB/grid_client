@@ -13,25 +13,19 @@ from gridgs.sdk.logger_fields import with_session_event
 
 
 class Subscriber:
-    __host: str
-    __port: int
-    __auth_client: AuthClient
-    __mqtt_client: PahoMqttClient
-    __lock: Lock
-    __logger: logging.Logger
-
     def __init__(self, host: str, port: int, auth_client: AuthClient, logger: logging.Logger):
+        self.__lock = Lock()
         self.__host = host
         self.__port = port
         self.__auth_client = auth_client
         self.__mqtt_client = PahoMqttClient(client_id='api-events-' + str(uuid.uuid4()), reconnect_on_failure=True)
+        self.__logger = logger
 
         def mqtt_client_log_callback(client, userdata, level, buf):
             self.__logger.debug(f'PahoMqtt: {buf}')
 
         self.__mqtt_client.on_log = mqtt_client_log_callback
-        self.__lock = Lock()
-        self.__logger = logger
+
 
     def on_event(self, func: typing.Callable[[SessionEvent], None]):
         def on_message(client, userdata, msg: MQTTMessage):

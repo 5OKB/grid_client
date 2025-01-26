@@ -5,8 +5,6 @@ class SessionEvent:
     EVENT_CREATE = 'created'
     EVENT_UPDATE = 'updated'
     EVENT_REMOVE = 'removed'
-    __type: str
-    __session: Session
 
     def __init__(self, type: str, session: Session):
         self.__type = type

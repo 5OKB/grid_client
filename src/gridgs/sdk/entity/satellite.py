@@ -3,8 +3,6 @@
 #
 
 class Satellite:
-    _id: int
-
     def __init__(self, id: int):
         if not id or not id > 0:
             raise ValueError('Satellite id should be more then 0')

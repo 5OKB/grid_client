@@ -7,15 +7,6 @@ from .satellite import Satellite, satellite_from_dict
 
 
 class Session:
-    _id: uuid.UUID
-    _satellite: Satellite
-    _ground_station: GroundStation
-    _start_datetime: datetime
-    _end_datetime: datetime
-    _status: str
-    _tca_coords: HorizontalCoords
-    _created_by: str
-
     STATUS_SCHEDULED = 'scheduled'
     STATUS_IN_PROGRESS = 'in_progress'
     STATUS_SUCCESS = 'success'
