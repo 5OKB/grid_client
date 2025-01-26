@@ -11,11 +11,6 @@ from .params import SessionQueryParams
 
 
 class Client:
-    __base_url: str
-    __auth_client: AuthClient
-    __logger: logging.Logger
-    __verify: bool
-
     def __init__(self, base_url: str, auth_client: AuthClient, logger: logging.Logger, verify=True):
         self.__base_url = base_url
         self.__auth_client = auth_client
