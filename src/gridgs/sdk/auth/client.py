@@ -10,23 +10,16 @@ from gridgs.sdk.entity import Token
 class Client:
     __PRE_EXPIRATION_SECONDS = 20
 
-    __open_id_client: KeycloakOpenID
-    __username: str
-    __password: str
-    __company_id: int
-    __token: Token = None
-    __token_expires_at: datetime = datetime.min
-    __refresh_token_value: str = ''
-    __refresh_expires_at: datetime = datetime.min
-    __lock: Lock
-    __logger: logging.Logger
-
     def __init__(self, open_id_client: KeycloakOpenID, username: str, password: str, company_id: int, logger: logging.Logger):
+        self.__lock = Lock()
         self.__open_id_client = open_id_client
         self.__username = username
         self.__password = password
         self.__company_id = company_id
-        self.__lock = Lock()
+        self.__token: Token | None = None
+        self.__token_expires_at: datetime = datetime.min
+        self.__refresh_token_value: str = ''
+        self.__refresh_expires_at: datetime = datetime.min
         self.__logger = logger
 
     def token(self) -> Token:

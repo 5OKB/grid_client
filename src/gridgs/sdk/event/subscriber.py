@@ -1,11 +1,12 @@
 import json
 import logging
+import threading
 import typing
 import uuid
-from threading import Lock
 
 from paho.mqtt.client import Client as PahoMqttClient, MQTT_ERR_SUCCESS, error_string
 from paho.mqtt.client import MQTTMessage
+from paho.mqtt.enums import MQTTErrorCode
 
 from gridgs.sdk.auth import Client as AuthClient
 from gridgs.sdk.entity import session_event_from_dict, SessionEvent, Token
@@ -13,25 +14,20 @@ from gridgs.sdk.logger_fields import with_session_event
 
 
 class Subscriber:
-    __host: str
-    __port: int
-    __auth_client: AuthClient
-    __mqtt_client: PahoMqttClient
-    __lock: Lock
-    __logger: logging.Logger
-
     def __init__(self, host: str, port: int, auth_client: AuthClient, logger: logging.Logger):
+        self.__is_running_lock = threading.Lock()
+        self.__stop_event = threading.Event()
+
         self.__host = host
         self.__port = port
         self.__auth_client = auth_client
         self.__mqtt_client = PahoMqttClient(client_id='api-events-' + str(uuid.uuid4()), reconnect_on_failure=True)
+        self.__logger = logger
 
         def mqtt_client_log_callback(client, userdata, level, buf):
             self.__logger.debug(f'PahoMqtt: {buf}')
 
         self.__mqtt_client.on_log = mqtt_client_log_callback
-        self.__lock = Lock()
-        self.__logger = logger
 
     def on_event(self, func: typing.Callable[[SessionEvent], None]):
         def on_message(client, userdata, msg: MQTTMessage):
@@ -46,29 +42,38 @@ class Subscriber:
         self.__mqtt_client.on_message = on_message
 
     def run(self):
-        with self.__lock:
+        with self.__is_running_lock:
+            self.__stop_event.clear()
+
             self.__logger.info('Starting')
+
             token = self.__get_token_and_set_credentials()
 
-            def on_connect(client: PahoMqttClient, userdata, flags, reason_code):
+            def __on_connect(client: PahoMqttClient, userdata, flags, reason_code):
+                if self.__stop_event.is_set():
+                    self.__logger.info('Connected. Ignore Subscribing. Stop is called')
+                    client.disconnect()
+                    return
+
                 self.__logger.info('Connected. Subscribing')
                 client.subscribe(topic=_build_sessions_event_topic(token.company_id))
 
-            self.__mqtt_client.on_connect = on_connect
+            self.__mqtt_client.on_connect = __on_connect
 
-            def on_disconnect(client, userdata, rc):
+            def __on_disconnect(client, userdata, rc):
                 self.__logger.info(f'Disconnected: {error_string(rc)}')
-                if rc != MQTT_ERR_SUCCESS:
+                if rc != MQTT_ERR_SUCCESS and not self.__stop_event.is_set():
                     self.__get_token_and_set_credentials()
 
-            self.__mqtt_client.on_disconnect = on_disconnect
+            self.__mqtt_client.on_disconnect = __on_disconnect
 
             self.__mqtt_client.connect(self.__host, self.__port)
             self.__mqtt_client.loop_forever(retry_first_connection=True)
 
-    def stop(self):
+    def stop(self) -> MQTTErrorCode:
         self.__logger.info('Stopping...')
-        self.__mqtt_client.disconnect()
+        self.__stop_event.set()
+        return self.__mqtt_client.disconnect()
 
     def __get_token_and_set_credentials(self) -> Token:
         token = self.__auth_client.token()
